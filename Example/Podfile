@@ -1,0 +1,12 @@
+source 'https://github.com/CocoaPods/Specs.git'
+use_frameworks!
+
+target 'GTAppUpdater_Example', :exclusive => true do
+  pod 'GTAppUpdater', :path => '../'
+end
+
+target 'GTAppUpdater_Tests', :exclusive => true do
+  pod 'GTAppUpdater', :path => '../'
+
+  
+end
