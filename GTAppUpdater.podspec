@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "GTAppUpdater"
-  s.version          = "1.0.2"
+  s.version          = "1.0.4"
   s.summary          = "GTAppUpdater monitors App Versions, Prompts and Forces Updates."
 
 # This description is used to generate tags and improve search results.
