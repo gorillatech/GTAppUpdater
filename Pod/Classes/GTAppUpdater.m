@@ -32,7 +32,7 @@
 
 NSString *lastVersion = nil;
 
-+ (id)manager {
++ (instancetype)manager {
     static GTAppUpdater *sharedInstance = nil;
     static dispatch_once_t oncePredicate;
     dispatch_once(&oncePredicate, ^{

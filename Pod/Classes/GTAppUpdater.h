@@ -37,7 +37,7 @@ typedef enum {
 @property (nonatomic, assign) NSUInteger daysUntilPrompt;
 @property (nonatomic, strong) NSDate *remindDate;
 
-+ (id)manager;
++ (instancetype)manager;
 
 - (void)checkUpdate;
 - (void)checkUpdateWithStrategy:(UpdateStrategy)strategy;
