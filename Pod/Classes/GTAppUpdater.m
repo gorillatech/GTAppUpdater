@@ -74,7 +74,7 @@ NSString *lastVersion = nil;
 - (void)checkNewAppVersion:(void(^)(BOOL newVersion, NSString *version))completion {
 
     NSString *currentVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-    NSURL *lookupURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/lookup?bundleId=%@&country=%@", self.bundleIdentifier, self.appStoreLocation]];
+    NSURL *lookupURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://itunes.apple.com/lookup?bundleId=%@&country=%@", self.bundleIdentifier, self.appStoreLocation]];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
@@ -128,78 +128,71 @@ NSString *lastVersion = nil;
     switch (self.strategy) {
         case DefaultStrategy:
         default: {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:alertTitle
-                                                                message:self.alertDefaultMessage != nil ? self.alertDefaultMessage : [NSString stringWithFormat:GTAppUpdaterLocalizedStrings(@"alert.success.default.text"), self.appName, lastVersion]
-                                                               delegate:self
-                                                      cancelButtonTitle:GTAppUpdaterLocalizedStrings(@"alert.button.skip")
-                                                      otherButtonTitles:GTAppUpdaterLocalizedStrings(@"alert.button.update"), nil];
-            [alertView show];
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:alertTitle
+                                                                           message:self.alertDefaultMessage != nil ? self.alertDefaultMessage : [NSString stringWithFormat:GTAppUpdaterLocalizedStrings(@"alert.success.default.text"), self.appName, lastVersion]
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:GTAppUpdaterLocalizedStrings(@"alert.button.skip") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                [[NSUserDefaults standardUserDefaults] setObject:lastVersion forKey:@"GTAppUpdater.skipVersion"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+            }]];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:GTAppUpdaterLocalizedStrings(@"alert.button.update") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.updatePageUrl] options:@{} completionHandler:nil];
+            }]];
+        
+            
+            [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:true completion:nil];
+            
         }
             break;
             
         case ForceStrategy: {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:alertTitle
-                                                                message:self.alertForceMessage != nil ? self.alertForceMessage : [NSString stringWithFormat:GTAppUpdaterLocalizedStrings(@"alert.success.force.text"), self.appName, lastVersion]
-                                                               delegate:self
-                                                      cancelButtonTitle:GTAppUpdaterLocalizedStrings(@"alert.button.update")
-                                                      otherButtonTitles:nil, nil];
-            [alertView show];
+            
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:alertTitle
+                                                                           message:self.alertForceMessage != nil ? self.alertForceMessage : [NSString stringWithFormat:GTAppUpdaterLocalizedStrings(@"alert.success.force.text"), self.appName, lastVersion]
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:GTAppUpdaterLocalizedStrings(@"alert.button.update") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.updatePageUrl] options:@{} completionHandler:nil];
+            }]];
+            
+            [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:true completion:nil];
         }
             break;
             
         case RemindStrategy: {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:alertTitle
-                                                                message:self.alertRemindMessage != nil ? self.alertRemindMessage : [NSString stringWithFormat:GTAppUpdaterLocalizedStrings(@"alert.success.remindme.text"), _appName, lastVersion]
-                                                               delegate:self
-                                                      cancelButtonTitle:GTAppUpdaterLocalizedStrings(@"alert.button.skip")
-                                                      otherButtonTitles:GTAppUpdaterLocalizedStrings(@"alert.button.update"), GTAppUpdaterLocalizedStrings(@"alert.button.remindme"), nil];
-            [alertView show];
-        }
-            break;
-    }
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    switch (self.strategy) {
-        case DefaultStrategy:
-        default: {
-            if (buttonIndex == 0) {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:alertTitle
+                                                                           message:self.alertRemindMessage != nil ? self.alertRemindMessage : [NSString stringWithFormat:GTAppUpdaterLocalizedStrings(@"alert.success.remindme.text"), _appName, lastVersion]
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:GTAppUpdaterLocalizedStrings(@"alert.button.skip") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
                 [[NSUserDefaults standardUserDefaults] setObject:lastVersion forKey:@"GTAppUpdater.skipVersion"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
-            } else {
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.updatePageUrl]];
-            }
-        }
+            }]];
             
-            break;
-            
-        case ForceStrategy:
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.updatePageUrl]];
-            break;
-            
-        case RemindStrategy: {
-            if (buttonIndex == 0) {
-                [[NSUserDefaults standardUserDefaults] setObject:lastVersion forKey:@"GTAppUpdater.skipVersion"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
-            } else if (buttonIndex == 1) {
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.updatePageUrl]];
-            } else {
+            [alert addAction:[UIAlertAction actionWithTitle:GTAppUpdaterLocalizedStrings(@"alert.button.update") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.updatePageUrl] options:@{} completionHandler:nil];
+            }]];
+        
+            [alert addAction:[UIAlertAction actionWithTitle:GTAppUpdaterLocalizedStrings(@"alert.button.remindme") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                 [self setRemindDate:[NSDate date]];
-            }
+            }]];
+            
+            [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:true completion:nil];
+
         }
             break;
     }
 }
 
-- (BOOL)checkConsecutiveDays
-{
-    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+- (BOOL)checkConsecutiveDays {
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     
     NSDate *today = [NSDate date];
     
     NSDate *dateToRound = [[self remindDate] earlierDate:today];
-    NSDateComponents * dateComponents = [gregorian components:NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit
-                                                     fromDate:dateToRound];
+    NSDateComponents * dateComponents = [gregorian components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:dateToRound];
     
     NSDate *roundedDate = [gregorian dateFromComponents:dateComponents];
     NSDate *otherDate = (dateToRound == [self remindDate]) ? today : [self remindDate] ;
