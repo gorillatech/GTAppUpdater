@@ -55,9 +55,8 @@ NSString *lastVersion = nil;
 
 - (void)checkUpdateWithStrategy:(UpdateStrategy)strategy store:(NSString *)store{
     
-    [self setAppName:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]];
+    [self setAppName:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"] ?: [[[NSBundle mainBundle]infoDictionary] objectForKey:(NSString *)kCFBundleNameKey]];
     [self setStrategy:strategy];
-    [self setAppStoreLocation: store ? store : [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode]];
     [self setDaysUntilPrompt:2];
     [self setBundleIdentifier:[[NSBundle mainBundle]objectForInfoDictionaryKey:@"CFBundleIdentifier"]];
     
@@ -74,7 +73,7 @@ NSString *lastVersion = nil;
 - (void)checkNewAppVersion:(void(^)(BOOL newVersion, NSString *version))completion {
 
     NSString *currentVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-    NSURL *lookupURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://itunes.apple.com/lookup?bundleId=%@&country=%@", self.bundleIdentifier, self.appStoreLocation]];
+    NSURL *lookupURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://itunes.apple.com/lookup?bundleId=%@", self.bundleIdentifier]];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
@@ -163,7 +162,7 @@ NSString *lastVersion = nil;
             
         case RemindStrategy: {
             UIAlertController *alert = [UIAlertController alertControllerWithTitle:alertTitle
-                                                                           message:self.alertRemindMessage != nil ? self.alertRemindMessage : [NSString stringWithFormat:GTAppUpdaterLocalizedStrings(@"alert.success.remindme.text"), _appName, lastVersion]
+                                                                           message:self.alertRemindMessage != nil ? self.alertRemindMessage : [NSString stringWithFormat:GTAppUpdaterLocalizedStrings(@"alert.success.remindme.text"), self.appName, lastVersion]
                                                                     preferredStyle:UIAlertControllerStyleAlert];
             
             [alert addAction:[UIAlertAction actionWithTitle:GTAppUpdaterLocalizedStrings(@"alert.button.skip") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {

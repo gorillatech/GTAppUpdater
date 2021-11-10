@@ -31,7 +31,7 @@ typedef enum {
 
 @interface GTAppUpdater : NSObject
 
-@property (nonatomic, strong) NSString *bundleIdentifier, *appStoreLocation, *appName, *route, *updatePageUrl;
+@property (nonatomic, strong) NSString *bundleIdentifier, *appName, *route, *updatePageUrl;
 @property (nonatomic, strong) NSString *alertTitle, *alertDefaultMessage, *alertForceMessage, *alertRemindMessage;
 @property (nonatomic, assign) UpdateStrategy strategy;
 @property (nonatomic, assign) NSUInteger daysUntilPrompt;
