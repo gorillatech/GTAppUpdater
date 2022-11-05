@@ -1,5 +1,5 @@
 //
-// Tests.m
+// GTAppUpdater.h
 //
 // Copyright (c) 2016 Gorilla Technologies Srl (http://gorillatech.io)
 //
@@ -21,30 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@import XCTest;
+@import Foundation;
 
-@interface Tests : XCTestCase
+typedef NS_ENUM(NSInteger, UpdateStrategy) {
+    UpdateStrategyDefault = 0,
+    UpdateStrategyForce,
+    UpdateStrategyRemind
+};
 
-@end
+@interface GTAppUpdater : NSObject
 
-@implementation Tests
+@property (nonatomic, strong) NSString *bundleIdentifier, *appName, *route, *updatePageUrl;
+@property (nonatomic, strong) NSString *alertTitle, *alertDefaultMessage, *alertForceMessage, *alertRemindMessage;
+@property (nonatomic, assign) UpdateStrategy strategy;
+@property (nonatomic, assign) NSUInteger daysUntilPrompt;
+@property (nonatomic, strong) NSDate *remindDate;
 
-- (void)setUp
-{
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
++ (instancetype)manager;
 
-- (void)tearDown
-{
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
-
-- (void)testExample
-{
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
+- (void)checkUpdate;
+- (void)checkUpdateWithStrategy:(UpdateStrategy)strategy;
+- (void)checkUpdateWithStore:(NSString *)store;
+- (void)checkUpdateWithStrategy:(UpdateStrategy)strategy store:(NSString *)store;
 
 @end
-

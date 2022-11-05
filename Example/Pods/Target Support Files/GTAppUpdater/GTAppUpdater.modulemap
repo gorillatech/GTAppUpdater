@@ -1,6 +1,0 @@
-framework module GTAppUpdater {
-  umbrella header "GTAppUpdater-umbrella.h"
-
-  export *
-  module * { export * }
-}
